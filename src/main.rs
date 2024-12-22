@@ -33,9 +33,14 @@ fn main() -> io::Result<()> {
 //    let download_url: &String = &args[1];
 //    let filename = download_file(download_url);
     let filename: &String = &args[1];
-    let genelist_filename = &args[2];
+    let mut use_gene_list = false;
+    let mut gene_set = HashSet::new();
+    if args.len() == 3 {
+        let genelist_filename = &args[2];
+        gene_set = parse_genelist(genelist_filename);
+        use_gene_list = true;
+    }
 
-    let gene_set = parse_genelist(genelist_filename);
 //    dbg!(gene_set);
 
     let file = File::open(filename)?;
@@ -56,7 +61,7 @@ fn main() -> io::Result<()> {
                               }
                           }
                       }
-                      if !gene_set.contains(attribute_fields_map.get("gene_id").unwrap()) {
+                      if use_gene_list && !gene_set.contains(attribute_fields_map.get("gene_id").unwrap()) {
                           continue;
                       }
                       println!("{}\t{}\t{}\t{}\t{}\t{}\t{}_exon_{}", chrom, start, end, strand, attribute_fields_map.get("gene_id").unwrap(), attribute_fields_map.get("tag").unwrap(),attribute_fields_map.get("gene_id").unwrap(), attribute_fields_map.get("exon_number").unwrap());
