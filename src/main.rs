@@ -3,6 +3,7 @@ use std::env;
 use flate2::read::GzDecoder;
 use std::io::{self, prelude::*, BufReader};
 use std::collections::HashMap;
+use std::collections::HashSet;
 
 /*
 fn download_file(download_url: &String) -> String {
@@ -17,11 +18,25 @@ fn download_file(download_url: &String) -> String {
 }
 */
 
+fn parse_genelist(genelist_filename: &String) -> HashSet<String> {
+    let mut gene_set = HashSet::new();
+    let file = File::open(genelist_filename).expect("Failed to open genelist");
+    let reader = BufReader::new(file);
+    for line in reader.lines() {
+        gene_set.insert(line.expect("Failed to parse gene"));
+    }
+    return gene_set;
+}
+
 fn main() -> io::Result<()> {
     let args: Vec<String> = env::args().collect();
 //    let download_url: &String = &args[1];
 //    let filename = download_file(download_url);
     let filename: &String = &args[1];
+    let genelist_filename = &args[2];
+
+    let gene_set = parse_genelist(genelist_filename);
+//    dbg!(gene_set);
 
     let file = File::open(filename)?;
     let reader = BufReader::new(GzDecoder::new(file));
@@ -40,6 +55,9 @@ fn main() -> io::Result<()> {
                                   attribute_fields_map.insert(key_val[0].trim(), str::replace(key_val[1], '"', ""));
                               }
                           }
+                      }
+                      if !gene_set.contains(attribute_fields_map.get("gene_id").unwrap()) {
+                          continue;
                       }
                       println!("{}\t{}\t{}\t{}\t{}\t{}\t{}_exon_{}", chrom, start, end, strand, attribute_fields_map.get("gene_id").unwrap(), attribute_fields_map.get("tag").unwrap(),attribute_fields_map.get("gene_id").unwrap(), attribute_fields_map.get("exon_number").unwrap());
                 }
