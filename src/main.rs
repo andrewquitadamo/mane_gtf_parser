@@ -45,6 +45,7 @@ fn main() -> io::Result<()> {
 
     let file = File::open(filename)?;
     let reader = BufReader::new(GzDecoder::new(file));
+    println!("chr\tstart\tend\tlength\tstrand\tgene\ttag\texon_number");
     for line in reader.lines() {
         let line_val = line?;
         if !line_val.starts_with('#') {
