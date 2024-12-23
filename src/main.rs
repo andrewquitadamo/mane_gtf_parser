@@ -64,7 +64,8 @@ fn main() -> io::Result<()> {
                       if use_gene_list && !gene_set.contains(attribute_fields_map.get("gene_id").unwrap()) {
                           continue;
                       }
-                      println!("{}\t{}\t{}\t{}\t{}\t{}\t{}_exon_{}", chrom, start, end, strand, attribute_fields_map.get("gene_id").unwrap(), attribute_fields_map.get("tag").unwrap(),attribute_fields_map.get("gene_id").unwrap(), attribute_fields_map.get("exon_number").unwrap());
+                      let length = (end.parse::<i32>().unwrap() - start.parse::<i32>().unwrap()) + 1;
+                      println!("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}_exon_{}", chrom, start, end, length, strand, attribute_fields_map.get("gene_id").unwrap(), attribute_fields_map.get("tag").unwrap(),attribute_fields_map.get("gene_id").unwrap(), attribute_fields_map.get("exon_number").unwrap());
                 }
             }
         }
