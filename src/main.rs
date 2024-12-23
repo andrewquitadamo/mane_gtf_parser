@@ -4,6 +4,7 @@ use std::collections::HashSet;
 use std::env;
 use std::fs::File;
 use std::io::{self, prelude::*, BufReader};
+use std::io::Read;
 
 /*
 fn download_file(download_url: &String) -> String {
@@ -44,7 +45,8 @@ fn main() -> io::Result<()> {
     //    dbg!(gene_set);
 
     let file = File::open(filename)?;
-    let reader = BufReader::new(GzDecoder::new(file));
+    let reader_box: Box<dyn Read> = if filename.ends_with(".gz") {Box::new(GzDecoder::new(file))} else {Box::new(file)};
+    let reader = BufReader::new(reader_box);
     println!("chr\tstart\tend\tlength\tstrand\tgene\ttag\texon_number");
     for line in reader.lines() {
         let line_val = line?;
