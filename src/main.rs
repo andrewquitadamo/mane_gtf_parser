@@ -1,9 +1,9 @@
-use std::fs::File;
-use std::env;
 use flate2::read::GzDecoder;
-use std::io::{self, prelude::*, BufReader};
 use std::collections::HashMap;
 use std::collections::HashSet;
+use std::env;
+use std::fs::File;
+use std::io::{self, prelude::*, BufReader};
 
 /*
 fn download_file(download_url: &String) -> String {
@@ -30,8 +30,8 @@ fn parse_genelist(genelist_filename: &String) -> HashSet<String> {
 
 fn main() -> io::Result<()> {
     let args: Vec<String> = env::args().collect();
-//    let download_url: &String = &args[1];
-//    let filename = download_file(download_url);
+    //    let download_url: &String = &args[1];
+    //    let filename = download_file(download_url);
     let filename: &String = &args[1];
     let mut use_gene_list = false;
     let mut gene_set = HashSet::new();
@@ -41,7 +41,7 @@ fn main() -> io::Result<()> {
         use_gene_list = true;
     }
 
-//    dbg!(gene_set);
+    //    dbg!(gene_set);
 
     let file = File::open(filename)?;
     let reader = BufReader::new(GzDecoder::new(file));
@@ -54,19 +54,33 @@ fn main() -> io::Result<()> {
             let fields: Vec<&str> = line_copy.split('\t').collect();
             if let [chrom, _, feature, start, end, _, strand, _, attributes] = fields[..] {
                 if feature == "CDS" {
-                      for attribute in attributes.split(';') {
-                          if attribute != " " {
-                              let key_val: Vec<&str> = attribute.trim().split('"').collect();
-                              if key_val.len() > 1 {
-                                  attribute_fields_map.insert(key_val[0].trim(), str::replace(key_val[1], '"', ""));
-                              }
-                          }
-                      }
-                      if use_gene_list && !gene_set.contains(attribute_fields_map.get("gene_id").unwrap()) {
-                          continue;
-                      }
-                      let length = (end.parse::<i32>().unwrap() - start.parse::<i32>().unwrap()) + 1;
-                      println!("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}_exon_{}", chrom, start, end, length, strand, attribute_fields_map.get("gene_id").unwrap(), attribute_fields_map.get("tag").unwrap(),attribute_fields_map.get("gene_id").unwrap(), attribute_fields_map.get("exon_number").unwrap());
+                    for attribute in attributes.split(';') {
+                        if attribute != " " {
+                            let key_val: Vec<&str> = attribute.trim().split('"').collect();
+                            if key_val.len() > 1 {
+                                attribute_fields_map
+                                    .insert(key_val[0].trim(), str::replace(key_val[1], '"', ""));
+                            }
+                        }
+                    }
+                    if use_gene_list
+                        && !gene_set.contains(attribute_fields_map.get("gene_id").unwrap())
+                    {
+                        continue;
+                    }
+                    let length = (end.parse::<i32>().unwrap() - start.parse::<i32>().unwrap()) + 1;
+                    println!(
+                        "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}_exon_{}",
+                        chrom,
+                        start,
+                        end,
+                        length,
+                        strand,
+                        attribute_fields_map.get("gene_id").unwrap(),
+                        attribute_fields_map.get("tag").unwrap(),
+                        attribute_fields_map.get("gene_id").unwrap(),
+                        attribute_fields_map.get("exon_number").unwrap()
+                    );
                 }
             }
         }
